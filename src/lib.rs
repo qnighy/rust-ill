@@ -1,9 +1,11 @@
 mod bang;
+mod limpl;
 mod plus;
 mod tensor;
 mod with;
 
 pub use bang::Bang;
+pub use limpl::Limpl;
 pub use plus::{Left, Plus, Right, Zero};
 pub use tensor::{One, Tensor};
 pub use with::{Top, With};
@@ -11,6 +13,26 @@ pub use with::{Top, With};
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[allow(unused)]
+    fn curry<A, B, C>(x: Limpl<Tensor<A, B>, C>) -> Limpl<A, Limpl<B, C>>
+    where
+        A: 'static,
+        B: 'static,
+        C: 'static,
+    {
+        Limpl::new(move |a| Limpl::new(move |b| x.apply(Tensor(a, b))))
+    }
+
+    #[allow(unused)]
+    fn uncurry<A, B, C>(x: Limpl<A, Limpl<B, C>>) -> Limpl<Tensor<A, B>, C>
+    where
+        A: 'static,
+        B: 'static,
+        C: 'static,
+    {
+        Limpl::new(move |ab: Tensor<A, B>| x.apply(ab.0).apply(ab.1))
+    }
 
     #[allow(unused)]
     fn distrib1<A, B, C>(x: Tensor<Plus<A, B>, C>) -> Plus<Tensor<A, C>, Tensor<B, C>>
